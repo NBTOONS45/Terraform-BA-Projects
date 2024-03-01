@@ -1,0 +1,17 @@
+# local terraform directories
+**/.terraform/*
+
+# Ignore my .tfstate or .tfstate.backup files
+*.tfstate
+*.tfstate.backup
+
+# Ignore .tfvars files that may contain sensitive data
+*.tfvars
+
+# Ignore override files they're usually used to override Terraform configurations
+override.tf
+override.tf.json
+*_override.tf
+
+#Ignore CLI configuration files
+terraform.rc
