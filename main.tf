@@ -1,26 +1,18 @@
 # LUIT Terraform Project BA #1
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
 
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-}
 
 # Creating an EC2 Instance
 resource "aws_instance" "BA_Linux_EC2" {
-  instance_type = "t2.micro"
-  ami           = "ami-07d9b9ddc6cd8dd30"
-  subnet_id     = "subnet-08d7962a011946932"
-  key_name      = "BA_KeyPair"
-  
-# Creating user data
+  instance_type = var.instance_type
+  ami           = var.ami_id
+  subnet_id     = var.subnet_id
+  key_name      = var.ssh_key_name
+
+
+  # Creating user data
+
+
+
   user_data = <<-EOF
 #!/bin/bash
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
@@ -46,25 +38,25 @@ resource "aws_security_group" "BA_Jenkins_SG" {
 }
 
 resource "aws_security_group_rule" "Allow_Port_22" {
-  security_group_id = "sg-005b368062d04188d"
+  security_group_id = var.sg_id
   type              = "ingress"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["136.55.189.2/32"]
+  cidr_blocks       = var.jenkins_cidr_block
 }
 
 resource "aws_security_group_rule" "Allow_Port_8080" {
-  security_group_id = "sg-005b368062d04188d"
+  security_group_id = var.sg_id
   type              = "ingress"
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  cidr_blocks       = ["136.55.189.2/32"]
+  cidr_blocks       = var.jenkins_cidr_block
 }
 
 resource "aws_security_group_rule" "Allow_All_Traffic" {
-  security_group_id = "sg-005b368062d04188d"
+  security_group_id = var.sg_id
   type              = "egress"
   from_port         = 0
   to_port           = 0
@@ -74,9 +66,9 @@ resource "aws_security_group_rule" "Allow_All_Traffic" {
 
 # Creating a S3 Bucket Artifact for Jenkins
 
-resource "aws_s3_bucket" "ba_jenkins_artifacts_bucket" {
-  bucket = "ba-jenkins-artifacts-bucket"
-  acl    = "private"
+resource "aws_s3_bucket" "ba-jenkins-artifacts-bucket" {
+  bucket = var.s3_bucket_name
+  acl    = var.s3_bucket_acl
   tags = {
     Name        = "jenkins-artifacts-bucket"
     Environment = "Dev"
